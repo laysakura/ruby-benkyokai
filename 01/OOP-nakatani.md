@@ -593,6 +593,80 @@ p c.z = 30
 
 ### インスタンスメソッドのアクセス制御
 
+今まで見てきたように、インスタンスメソッドはデフォルトではインスタンスオブジェクトから自由にアクセス可能です。
+これを、`public`なインスタンスメソッドと呼びます。つまり、インスタンスメソッドはデフォルトで`public`です。
+
+インスタンスメソッドのアクセス制御のための属性には、他に`private`と`protected`があります。
+それぞれを見て行きましょう。
+
+### `public`メソッド
+
+インスタンスから自由に呼び出しが可能なメソッド。デフォルト。
+
+### `private`メソッド
+
+インスタンスから呼び出すことの出来ないメソッド。`public`メソッドの実装のために使用する。
+
+`private_method.rb`
+```ruby
+class StringPair
+  def a_has_more_capital?(a, b)
+    return num_capital(a) > num_capital(b)
+  end
+
+  def num_capital(s)
+    n = 0
+    s.chars {|c| n += 1 if c =~ /[A-Z]/}
+    n
+  end
+  private :num_capital
+end
+
+
+strpair = StringPair.new
+p strpair.a_has_more_capital? 'AbC', 'aBc'  # => true
+p strpair.num_capital 'AbC'                 # => NoMethodError
+```
+
+クラスに`public`なメソッドが多いと、そのクラスの使用者は、どのメソッドの使い方を覚えれば良いのか分からなくなります。
+関心事の分離の観点から、`private`メソッドは積極的に使いましょう。
+
+### `protected`メソッド
+
+**あまり使うことはない**。
+
+`protected`メソッドは、同一クラスの他インスタンスから呼び出すことができる。
+**が、とりあえずは忘れて良いだろう**。
+
+```ruby
+class C
+  def public_method(other_instance)
+    other_instance.protected_method  # クラス内では、同一クラスの他インスタンスからprotectedメソッドを呼べる
+  end
+
+  def protected_method
+    p 'hello from protected'
+  end
+  protected :protected_method
+end
+
+
+c1 = C.new
+c2 = C.new
+
+c1.public_method c2  # => hello from protected
+```
+
+### `private`, `protected`の注意点
+
+JavaやC++に馴染んでいる人にとって、Rubyの`private`, `protected`には注意が必要だ。
+
+|           | private                                                                                            | protected                                                                                        |
+|-----------|----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| C++, Java | インスタンスオブジェクトからは呼び出せない。継承先クラスのインスタンスメソッドからも呼び出せない。 | インスタンスオブジェクトからは呼び出せない。継承先クラスのインスタンスメソッドからは呼び出せる。 |
+| Ruby      | インスタンスオブジェクトからは呼び出せない。継承先クラスのインスタンスメソッドからは呼び出せる。   | 同一クラスの他インスタンスから呼び出すことができる。                                             |
+
+
 
 ### OOPとオブジェクト指向プログラミング言語
 
@@ -786,10 +860,6 @@ Bow... Feeling too heavy...
 
 # ネタ出し
 
-- Rubyは何でもオブジェクト
-  - プリミティブ型なし
-  - 「データ型」もプリミティブ型でなくクラス
-
 - OOPの中心的概念
   - カプセル化
     - protected, private
@@ -802,15 +872,6 @@ Bow... Feeling too heavy...
   - ポリモフィズム
     - duck typing (ポリモフィズムの1実装)
     - cf. オーバーロード C++
-
-- クラスをより深める
-  - クラス変数、メソッド
-  - コンストラクタ、デストラクタ
-
-- 単純なクラスベース以外のOOP支援機構
-  - mix-in
-  - 特異メソッドの解説と用途(深ポイント)
-    - http://blog.livedoor.jp/sasata299/archives/51497378.html
 
 # まとめ
 
