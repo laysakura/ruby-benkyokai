@@ -289,7 +289,7 @@ irb(main):040:0> puts key1: 'val1', key2: 'val2'
 
 ## `p`
 
-データ構造をデバッグ用に出力するとき、`p`関数をよく用います。Perlの`Data::Dumper`相当です。
+データ構造をデバッグ用に出力するとき、`p`メソッドをよく用います。Perlの`Data::Dumper`相当です。
 
 ```ruby
 p irb(main):043:0> p key1: 'val1', key2: [1, 2, 3]
@@ -299,7 +299,7 @@ p irb(main):043:0> p key1: 'val1', key2: [1, 2, 3]
 ここまで話した範囲のデータ型では`puts`と比べてあまりうまみが味わえないのですが、
 より複雑なデータ構造を出力するときに役立ちます。
 
-以降も`p`関数はよく使います。
+以降も`p`メソッドはよく使います。
 
 
 ## メソッド
@@ -673,16 +673,174 @@ Rubyは単一継承をサポートしています。
 
 (多重継承はサポートされていませんが、(多分)次回に話すmix-inで同等のことが可能です)
 
-`inheritence.rb`
+`inheritance.rb`
 ```ruby
+class Parent
+  def f
+    p 'Parent'
+  end
+end
 
+class Child < Parent
+end
+
+
+c = Child.new
+c.f  # => Parent
 ```
 
 ### 継承で引き継がれるもの
 
-- クラスメソッド
+上記の例では、`Parent`クラスのインスタンスメソッド`f`が、`Child`クラスのインスタンスから使用できました。
+
+Rubyにおける継承では、以下のものが引き継がれます。
+
 - インスタンスメソッド
+- クラスメソッド
 - 定数
+
+クラスメソッドとインスタンスメソッドについては、次回以降に見ていきます。
+
+ここで注意してほしいのは、**インスタンス変数は継承されない**、ということです。
+しかし、そもそもRubyのインスタンス変数は、インスタンスメソッドの中で定義されることを思い出してください。
+すなわち、**インスタンスメソッドが継承されるので、結果としてインスタンス変数も継承されたように見える**ということができます。
+
+`inheritance2.rb`
+```ruby
+class Parent
+  def init_val
+    @val = 777
+  end
+
+  def print_val
+    p "val = #{@val}"
+  end
+end
+
+class Child < Parent
+end
+
+
+c = Child.new
+c.init_val    # Parent#init_val から継承したメソッドを呼ぶことにより、
+              # Child クラスのインスタンスに @val インスタンス変数が定義される
+c.print_val   # => "val = 777"
+```
+
+
+### インスタンスメソッドのオーバーライド
+
+親クラスのインスタンスメソッドは、子クラスから上書き、すなわち**オーバーライド**することができます。
+
+`override.rb`
+```
+class Parent
+  def f
+    p 'Parent'
+  end
+end
+
+class Child < Parent
+  def f
+    p 'Child'
+  end
+end
+
+
+c = Child.new
+c.f  # => Child
+```
+
+
+### (やや重要なおまけ) オーバーロード
+
+C++などには、Rubyにはない**オーバーロード**という仕組みがあります。
+オーバーライドとは名前が似ていますが実態は異なり、
+同一クラスに引数の取り方が違う同名のメソッドを並立させることを指します。
+オーバーロードは、ポリモフィズムを実現するための1つの機能です。
+
+C++のオーバーロードのコード例を示します。
+
+`overload.cc`
+```cpp
+#include <string>
+#include <iostream>
+
+using namespace std;
+
+class C {
+public:
+  void f(int v) {
+    cout << "Integer: " << v << endl;
+  }
+
+  void f(string v) {
+    cout << "String: " << v << endl;
+  }
+};
+
+
+int main() {
+  C c = C();
+
+  c.f(777);      // => Integer: 777
+  c.f("hello");  // => String: hello
+
+  return 0;
+}
+```
+
+```bash
+$ g++ overload.cc && ./a.out
+Integer: 777
+String: hello
+```
+
+一方、前述のとおりRubyにはオーバーロードはありません。
+
+`overload_not_supported.rb`
+```ruby
+class C
+  def f
+    p 'hello'
+  end
+
+  def f(a)
+    p "hello, #{a}"
+  end                # この時点で上の `f` の定義は `f(a)` に置き換えられる
+end
+
+
+c = C.new
+#c.f             # => ArgumentError
+c.f 'laysakura'  # => hello, laysakura
+```
+
+これを踏まえて、何故下記のコードがエラーになるかが分かるでしょうか?
+
+****************************
+
+Q. なぜこのコードはエラーになる? 何のエラーになる?
+
+`ill_override.rb`
+```ruby
+class Parent
+  def goodbye
+    p 'goodbye'
+  end
+end
+
+class Child < Parent
+  def goodbye(name)
+    p "goodbye, #{name}"
+  end
+end
+
+
+c = Child.new
+c.goodbye('perl')  # => goodbye, perl
+c.goodbye          # -> エラー!!
+```
 
 
 ### OOPとオブジェクト指向プログラミング言語
