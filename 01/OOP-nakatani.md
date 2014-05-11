@@ -428,6 +428,212 @@ A. Rubyには3種のオブジェクトがあり、インスタンス(オブジ�
 参考: http://melborne.github.io/2013/02/07/understand-ruby-object/
 
 
+## オブジェクト指向プログラミング
+
+ここでは、オブジェクト指向プログラミング(Object-Oriented Programming; OOP)の概念を紹介し、
+RubyにおけるOOPの基礎的なやり方を解説します。
+
+「OOPとは」というテーマは皆様には釈迦に説法かもしれませんが、
+新鮮な気持ちで聞いていただければ幸いです。
+
+
+### OOPの基本要素
+
+諸説別れる部分ではありますが、ここではオブジェクト指向プログラミングの基本要素を以下の3つとします(というか、僕がそう思ってます)。
+
+- カプセル化
+- 継承
+- ポリモフィズム
+
+
+### OOPとオブジェクト指向プログラミング言語
+
+**深イイ**
+
+世の中には、オブジェクト指向プログラミング言語と分類される言語があります。
+代表的なのは以下のようなものでしょうか。
+
+- Ruby
+- Python
+- Java
+- C++
+
+これらの言語は、OOPを**協力にサポート**してくれます。
+しかし、**オブジェクト指向プログラミング言語はOOPに必須ではありません**。
+
+ここでは、OOPの基本要素であるカプセル化、継承、ポリモフィズムのうち、
+カプセル化とポリモフィズムを実践したプログラムを、C言語で書いてみましょう。
+ご存知の通り、C言語にはクラスという機能は存在しません。
+誰もC言語のことをオブジェクト指向プログラミング言語とは呼んでくれないでしょうが、
+**クラスベース**のOOPでなければCでもかなり近いものが実現できることを示します。
+
+まず参考に、Rubyでの参照実装を示します。
+
+`oop.rb`
+```ruby
+class Cat
+  def initialize
+    @weight_kg = 1.5
+  end
+
+  def eat
+    @weight_kg += 1.0
+  end
+
+  def say_condition
+    if @weight_kg < 3.0
+      p 'Meow :)'
+    else
+      p 'Meow... Feeling too heavy..'
+    end
+  end
+end
+
+
+class Dog
+  def initialize
+    @weight_kg = 2.5
+  end
+
+  def eat
+    @weight_kg += 1.0
+  end
+
+  def say_condition
+    if @weight_kg < 5.0
+      p 'Bow :)'
+    else
+      p 'Bow... Feeling too heavy..'
+    end
+  end
+end
+
+
+# ポリモフィズム: CatのインスタンスもDogのインスタンスも、
+# 共にeatしてsay_conditionすることができる
+animal1 = Cat.new
+animal1.eat; animal1.say_condition
+animal1.eat; animal1.say_condition
+
+animal2 = Dog.new
+animal2.eat; animal2.say_condition
+animal2.eat; animal2.say_condition
+animal2.eat; animal2.say_condition
+
+
+# カプセル化: インスタンス変数にはアクセスできない
+animal1.weight_kg
+```
+
+```bash
+$ ruby src/oop.rb
+"Meow :)"
+"Meow... Feeling too heavy.."
+"Bow :)"
+"Bow :)"
+"Bow... Feeling too heavy.."
+oop.rb:54:in `<main>': undefined method `weight_kg' for #<Cat:0x007fe6f5897928 @weight_kg=3.5> (NoMethodError)
+```
+
+これと同様の動作をするコードを、C言語で記述しましょう。
+(Cに不慣れならコードはスキップ可)
+
+```c
+# include <stdio.h>
+
+enum Kind { CAT, DOG };
+
+struct Cat {
+  float weight_kg;  // カプセル化: 構造体中のメンバには、
+                    // オブジェクトの使用者はアクセスしない、という規約を守る
+  enum Kind kind;
+};
+
+struct Dog {
+  float weight_kg;  // カプセル化: 構造体中のメンバには、
+                    // オブジェクトの使用者はアクセスしない、という規約を守る
+  enum Kind kind;
+};
+
+struct Cat cat_initialize() {
+  struct Cat instance;
+  instance.kind = CAT;
+  instance.weight_kg = 1.5;
+  return instance;
+}
+
+struct Dog dog_initialize() {
+  struct Dog instance;
+  instance.kind = DOG;
+  instance.weight_kg = 2.5;
+  return instance;
+}
+
+void eat(void *animal) {
+  enum Kind k = ((struct Cat *) animal)->kind;
+
+  if (k == CAT)      ((struct Cat *) animal)->weight_kg += 1.0;
+  else if (k == DOG) ((struct Dog *) animal)->weight_kg += 1.0;
+}
+
+void say_condition(void *animal) {
+  enum Kind k = ((struct Cat *) animal)->kind;
+
+  if (k == CAT) {
+    if (((struct Cat *) animal)->weight_kg < 3.0)
+      printf("Meow :)\n");
+    else
+      printf("Meow... Feeling too heavy...\n");
+  }
+  else if (k == DOG) {
+    if (((struct Dog *) animal)->weight_kg < 5.0)
+      printf("Bow :)\n");
+    else
+      printf("Bow... Feeling too heavy...\n");
+  }
+}
+
+int main() {
+  // ポリモフィズム: CatのインスタンスもDogのインスタンスも、
+  // 共にeatしてsay_conditionすることができる
+  struct Cat animal1 = cat_initialize();
+  eat(&animal1); say_condition(&animal1);
+  eat(&animal1); say_condition(&animal1);
+
+  struct Dog animal2 = dog_initialize();
+  eat(&animal2); say_condition(&animal2);
+  eat(&animal2); say_condition(&animal2);
+  eat(&animal2); say_condition(&animal2);
+
+  return 0;
+}
+```
+
+```bash
+$ gcc oop.c && ./a.out
+Meow :)
+Meow... Feeling too heavy...
+Bow :)
+Bow :)
+Bow... Feeling too heavy...
+```
+
+このように、オブジェクト指向プログラミング言語でないC言語でも、OOPは実現できるのです。
+ただし、OOPをしたいのであれば、素直にオブジェクト指向プログラミング言語を使用するのが楽でしょう。
+
+
+#### 余談: Perl5はオブジェクト指向プログラミング言語か?
+
+世の中の人がどう言っているかは知りませんが、僕はPerl5はオブジェクト指向プログラミング言語に
+ギリギリカスるようなものだと思っています。
+
+カプセル化はインスタンス変数・関数名の先頭に`_`を付けるなどの慣習で、継承は`use parent`で、
+ポリモフィズムはduck typingで実現できますね。
+
+クラスをまともにサポートしているとは言いがたい(ただのハッシュじゃん! という意味で)ですが、
+クラスっぽいインターフェイスを提供しつつ、カプセル化、継承、ポリモフィズムの手段を与えているという点で、
+ギリギリオブジェクト指向プログラミング言語なのかなと思っています。
+
 
 # ネタ出し
 
