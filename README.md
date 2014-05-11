@@ -1,3 +1,24 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Ruby勉強会 - 概要](#ruby勉強会---概要)
+- [発表ポリシー](#発表ポリシー)
+  - [他言語との比較](#他言語との比較)
+  - [中級者には学びを、上級者には納得を](#中級者には学びを、上級者には納得を)
+  - [網羅性は重視 **しない**](#網羅性は重視-しない)
+- [各回のスケジュール](#各回のスケジュール)
+  - [第1回(2014/05/12)](#第1回20140512)
+  - [第2回(2014/05/19)](#第2回20140519)
+  - [第3回(2014/05/26)](#第3回20140526)
+  - [第4回(2014/06/09)](#第4回20140609)
+  - [...](#)
+- [その他のネタ帳](#その他のネタ帳)
+- [ゲスト発表](#ゲスト発表)
+- [ファイル・ディレクトリ構成](#ファイル・ディレクトリ構成)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Ruby勉強会 - 概要
 
 他のLLは書いたことあるけど、Rubyは初心者という人向けの社内勉強会です。
