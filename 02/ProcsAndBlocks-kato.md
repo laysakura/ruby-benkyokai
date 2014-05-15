@@ -11,7 +11,7 @@ ProcとBlock
 
 ## はじめてのブロック
 
-ブロックとは、** { } ** か ** do end **で囲まれたコードのこと。
+ブロックとは、**{ }** か **do end**で囲まれたコードのこと。
 
 ```ruby
 {|x| x + 1} 
@@ -114,6 +114,8 @@ Perlの場合、サブルーチンへのリファレンスを引数に渡すこ�
 
 やっぱりRubyはPerlに似ている。Perlと似ていて……気持ち悪い？？
 
+![ruby_perl](https://dl.dropboxusercontent.com/u/17538030/ruby_perl_mirakui.png)
+
 <blockquote class="twitter-tweet" lang="en"><p>アルバイトの方に「はじめての Ruby」を読んでもらっていたら、 Ruby って Perl っぽくて気持ち悪いと言い出して、近くにいた YAPC::Asia キーノートスピーカーと Ruby コミッターがニコニコしていた</p>&mdash; Issei Naruta (@mirakui) <a href="https://twitter.com/mirakui/statuses/463959363913125888">May 7, 2014</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
@@ -131,8 +133,32 @@ JavaScriptでも似たように書けたと思う。
 
 Java8にもある（ http://d.hatena.ne.jp/nowokay/20130522 ）
 
+
+
 クロージャは外にある変数を使えたりする。
 
 クロージャは状態を持てる関数。でも状態を持たせると、状態の違いによる挙動の違いが発生する。とても複雑になる。人間の脳が覚えきれない。なので、本当に状態を持たせるべきかよく考えて使おう。
 
 オブジェクト指向自体が、インスタンスに状態を持たせてそのインスタンスに
+
+
+最後に、とあるPythonアイドルの言葉を紹介して終わりたい。
+
+![python_idol](https://dl.dropboxusercontent.com/u/17538030/python_ruby.png)
+<blockquote class="twitter-tweet" lang="en"><p>Rubyは「より良いPerl」とか 初めてのRubyにかいてあったので、一気にRuby怖くなりました。</p>&mdash; くーむ@ぱいそん！ (@cocodrips) <a href="https://twitter.com/cocodrips/statuses/463958394789834752">May 7, 2014</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+![ruby_is_not_scary](https://dl.dropboxusercontent.com/u/17538030/ruby_is_not_scary.png)
+
+<blockquote class="twitter-tweet" lang="en"><p>Rubyは怖くないRubyは怖くないこわくないこわくない・・・・・・</p>&mdash; くーむ@ぱいそん！ (@cocodrips) <a href="https://twitter.com/cocodrips/statuses/463957562740584449">May 7, 2014</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+![be_ruby](https://dl.dropboxusercontent.com/u/17538030/be_ruby.png)
+
+<blockquote class="twitter-tweet" lang="en"><p>Python好きの自分にとってRubyはなんでこうなんだ？！って自分の中で考えまくってたんだけど、考えてるうちに&#10;あー全部オブジェクトってそういうことなのかー確かにそう考えれば気持ちわかるかも…&#10;みたいになったりしてた。&#10;言語を学ぶ時はその言語の気持ちにならなきゃ。</p>&mdash; くーむ@ぱいそん！ (@cocodrips) <a href="https://twitter.com/cocodrips/statuses/464223109789138945">May 8, 2014</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+## 結論
+Rubyの気持ちになろう！
