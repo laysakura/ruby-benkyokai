@@ -88,6 +88,16 @@ l.class  #=> Proc
 
 ### これPerlで見たやつだ！
 Perlの場合、サブルーチンへのリファレンスを引数に渡すことで実現している。
+
+やっぱりRubyはPerlに似ている。
+
+<blockquote class="twitter-tweet" lang="en"><p>アルバイトの方に「はじめての Ruby」を読んでもらっていたら、 Ruby って Perl っぽくて気持ち悪いと言い出して、近くにいた YAPC::Asia キーノートスピーカーと Ruby コミッターがニコニコしていた</p>&mdash; Issei Naruta (@mirakui) <a href="https://twitter.com/mirakui/statuses/463959363913125888">May 7, 2014</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+ちょっと待った。
+
+「Rubyって」
+
 Pythonでも似た感じに書ける。
 
 クロージャは状態を持てる関数。でも状態を持たせると、状態の違いによる挙動の違いが発生する。とても複雑になる。人間の脳が覚えきれない。なので、本当に状態を持たせるべきかよく考えて使おう。
