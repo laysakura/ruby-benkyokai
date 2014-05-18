@@ -106,9 +106,17 @@ greet(my_proc)
 となる。便利。
 
 
+### lambdaってなあに
+```ruby
+my_proc = lambda {|x| x * 2} 
+p my_proc.call(10)  # => 20
+```
+
+上記のProcオブジェクトを、Proc::newメソッドを使わずに作れる。Proc::newで作ったオブジェクトもlambdaで作ったオブジェクトも、どちらもProcクラスのインスタンス。
+
 ### pryで確かめよう
 
-前回紹介されたpryでlambdaがいったいなんなのかを突き止めよう。
+前回紹介されたpryでlambdaが本当にProcなのかを確かめよう。
 
 ```ruby
 my_proc = Proc.new {|x| x * 2}  #=> #<Proc:0x007fd38ae68e70@(pry):3>
@@ -153,16 +161,20 @@ end
 
 greetのあとの、doとendで囲んだブロックの処理を、greetのなかに持ち込んでそのまま実行できる。
 
+
+ブロック引数は1つしか認められていない。そのため、「どのブロックを実行するか」を明示する必要がない。なので、yieldという引数なしの関数だけで、何を実行するかが特定できている。
+
+
 yieldを使うと、たとえばファイルをopenしたあとに求める処理を行い、最後に忘れずcloseするようなコードを、再利用しやすく作れる。
 
 ```ruby
 def neatly_open(filename)
   file = open(filename, 'r')
-  yield file
+  yield file  # 実行するブロックに引数をわたしている
   file.close
 end
 
-neatly_open('orders.txt') { |file| print file.read }
+neatly_open('orders.txt') { |file| print file.read }  # fileを引数として受け取って、その内容を出力するだけのブロック
 ```
 
 ちなみにこれはPythonならwithで行う。
