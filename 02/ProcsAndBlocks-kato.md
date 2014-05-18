@@ -63,7 +63,7 @@ SyntaxError: unexpected '}', expecting end-of-input
 ```perl
 my $s = sub {
     my $x = shift;
-    my $x + 10;
+    $x + 10;
 };
 print $s->(100);  #=> 110
 ```
