@@ -149,9 +149,7 @@ def greet(&block)
   p 'Kitashirakawa.'
 end
 
-greet do
-  p 'Anko'
-end
+greet { p 'Anko' }
 ```
 
 これを実行するとこうなる。
