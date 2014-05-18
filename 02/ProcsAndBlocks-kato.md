@@ -143,22 +143,3 @@ Java8にもある（ http://d.hatena.ne.jp/nowokay/20130522 ）
 
 
 最後に、とあるPythonアイドルの言葉を紹介して終わりたい。
-
-![python_idol](https://dl.dropboxusercontent.com/u/17538030/python_ruby.png)
-<blockquote class="twitter-tweet" lang="en"><p>Rubyは「より良いPerl」とか 初めてのRubyにかいてあったので、一気にRuby怖くなりました。</p>&mdash; くーむ@ぱいそん！ (@cocodrips) <a href="https://twitter.com/cocodrips/statuses/463958394789834752">May 7, 2014</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-
-![ruby_is_not_scary](https://dl.dropboxusercontent.com/u/17538030/ruby_is_not_scary.png)
-
-<blockquote class="twitter-tweet" lang="en"><p>Rubyは怖くないRubyは怖くないこわくないこわくない・・・・・・</p>&mdash; くーむ@ぱいそん！ (@cocodrips) <a href="https://twitter.com/cocodrips/statuses/463957562740584449">May 7, 2014</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-
-![be_ruby](https://dl.dropboxusercontent.com/u/17538030/be_ruby.png)
-
-<blockquote class="twitter-tweet" lang="en"><p>Python好きの自分にとってRubyはなんでこうなんだ？！って自分の中で考えまくってたんだけど、考えてるうちに&#10;あー全部オブジェクトってそういうことなのかー確かにそう考えれば気持ちわかるかも…&#10;みたいになったりしてた。&#10;言語を学ぶ時はその言語の気持ちにならなきゃ。</p>&mdash; くーむ@ぱいそん！ (@cocodrips) <a href="https://twitter.com/cocodrips/statuses/464223109789138945">May 8, 2014</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-## 結論
-Rubyの気持ちになろう！
