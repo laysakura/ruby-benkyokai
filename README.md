@@ -2,8 +2,6 @@
 
 他のLLは書いたことあるけど、Rubyは初心者という人向けの社内勉強会です。
 
-レポジトリ: https://github.dena.jp/nakatani-sho/ruby-benkyokai
-
 毎回の予告などもこのレポジトリでしていくつもりです。
 
 主に中谷@Rubyド素人が30~60min喋る感じのイベントになります。
