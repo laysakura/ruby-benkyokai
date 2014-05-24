@@ -101,6 +101,5 @@
   - 第XX回の資料を入れるディレクトリ
 - `XX/SubjectToday-yourname.(md|rst|org|txt|...)`
   - 担当者yournameのSubjectTodayに関する資料。フォーマットは**聴衆にやさしければ**何でも良いです。
-- `XX/src/`
-  - 第XX回で使用するサンプルコードを入れるディレクトリ(任意)。
-    ゲスト発表者との名前の衝突に注意。衝突したらpull-reqをmergeする時に何とかします。
+- `XX/src-yourname/`
+  - 担当者yournameのサンプルコードを入れるディレクトリ(任意)。
