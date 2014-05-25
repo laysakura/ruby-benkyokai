@@ -293,7 +293,7 @@ end
 obj = Greet.new 'Sho'  # => "Hello, Sho"
 ```
 
-## デストラクタ => ない
+## デストラクタ => そんなものはない
 
 ![深イイ](../resource/image/deep.png)
 
@@ -334,20 +334,207 @@ class Tempfile < DelegateClass(File)
 (僕はよくわからないのでRubyistさん教えてください)
 
 
-## クラス変数
-
 ## クラスメソッド
 
-selfはクラスのレシーバ(??)
+インスタンスメソッドはインスタンスが存在して初めて呼び出せるものでしたが、
+クラスメソッドの呼び出しにはインスタンスが不要です。
+
+C++やJavaの人にはstaticメソッドと言ったほうが通りが良いかもしれません。
+
+クラスメソッドの定義方法と使用方法を示します。
+
+`class_method.rb`
+
+```ruby
+class C
+  def C.say_name
+    p 'I am C'
+  end
+end
 
 
-## どこにいる? インスタンスメソッド、クラスメソッド、インスタンス変数、クラス変数
+C.say_name  # => "I am C"
+```
+
+このように、クラス`C`のインスタンスを作成することなく、直接クラスメソッド`C.say_name`を呼び出すことが出来ます。
+
+さて、実は上に示したクラスメソッドの定義の仕方はあまり一般的ではありません。
+通常は`self`を使用します。
+
+`class_method2.rb`
+
+```ruby
+class C
+  def self.say_name
+    p "I am #{self.to_s}"
+  end
+end
+
+
+C.say_name  # => "I am C"
+```
+
+`self`は、クラス内やクラスメソッド内では、そのクラス(オブジェクト)と同値です。
+
+```ruby
+[50] pry(main)> class C
+[50] pry(main)*   p self == C
+[50] pry(main)* end
+true
+=> true
+```
+
+文脈から外れますが、インスタンスメソッドの中では`self`は呼び出し元インスタンスと同値です。
+
+```ruby
+[52] pry(main)> class C
+[52] pry(main)*   def f
+[52] pry(main)*     self.object_id
+[52] pry(main)*   end
+[52] pry(main)* end
+
+[54] pry(main)> c = C.new
+[55] pry(main)> c.object_id
+=> 70338963996040
+[56] pry(main)> c.f
+=> 70338963996040
+```
+
+話を元に戻しましょう。
+
+クラスメソッドの定義は、`def self.f ... end`のようにするのが基本ですが、以下のような定義方法も比較的よく見かけるので覚えておきましょう。
+
+`class_method3.rb`
+
+```ruby
+class C
+  class << self
+    def say_name
+      p "I am #{self.to_s}"
+    end
+  end
+end
+
+
+C.say_name  # => "I am C"
+```
+
+
+## クラス変数
+
+クラス変数は、インスタンスではなくクラス(オブジェクト)に紐付いた変数です。
+全てのインスタンスで共有されるべき状態を表すのに使用する場合がほとんどでしょう。
+
+`class_variable.rb`
+
+```ruby
+class C
+  @@num_instances = 0
+
+  def initialize
+    @@num_instances += 1
+  end
+
+  def say_my_number
+    p "I am #{@@num_instances}th instance"
+  end
+
+  def self.say_num_instances
+    p "I have #{@@num_instances} instances"
+  end
+end
+
+
+C.new.say_my_number  # => "I am 1th instance"
+C.new.say_my_number  # => "I am 2th instance"
+C.new.say_my_number  # => "I am 3th instance"
+
+C.say_num_instances  # => "I have 3 instances"
+```
+
+少し注意をしておくと、`class C`の直下に`@@num_instances = ??`と定義するのが必須なわけではありません。
+`ruby`インタプリタは、上から順に`class C`の中身を解析して、たまたま`@@num_instances = 0`を見つけた時点で`C`のクラスメソッドに`@@num_instances`を追加します。
+従って、クラスメソッドやインスタンスメソッドを呼び出すまで、そのクラス変数が存在しないということがあり得るのです(同じことはインスタンス変数にも言えましたね)。
+
+さて、クラス変数は、インスタンスメソッドやクラスメソッドから参照することが出来ます。
+ただし、インスタンスからはもちろん、**クラスからもアクセスすることはできません**。
+もしクラスからクラス変数にアクセスしたいときには、アクセサに相当するものを自分で定義する必要があります。
+
+`class_variable_accessor.rb`
+
+```ruby
+class C
+  @@num_instances = 0
+
+  def initialize
+    @@num_instances += 1
+  end
+
+  def say_my_number
+    p "I am #{@@num_instances}th instance"
+  end
+
+  def self.say_num_instances
+    p "I have #{@@num_instances} instances"
+  end
+
+  def self.num_instances
+    @@num_instances
+  end
+
+  def self.num_instances=(v)
+    @@num_instances = v
+  end
+end
+
+
+C.new.say_my_number  # => "I am 1th instance"
+C.new.say_my_number  # => "I am 2th instance"
+C.new.say_my_number  # => "I am 3th instance"
+
+p C.num_instances  # => 3
+p C.num_instances = 100  # => 100
+```
+
+
+
+## どこにいる? インスタンス変数、クラス変数、インスタンスメソッド、クラスメソッド
 
 ![深イイ](../resource/image/deep.png)
 
-インスタンスメソッド書き換えられるのでは?? => むりなはず => インスタンス固有==特異メソッド
+インスタンス変数、クラス変数、インスタンスメソッド、クラスメソッド、これらはどこにいるのでしょうか?
+もっと言えば、それぞれはインスタンスオブジェクトの持ち物なのかクラスオブジェクトの持ち物なのか、どちらでしょうか?
+
+正解はこちら。
+
+| 要素                 | 所属         |
+|----------------------|--------------|
+| インスタンス変数     | インスタンス |
+| クラス変数           | クラス       |
+| インスタンスメソッド | **クラス**   |
+| クラスメソッド       | クラス       |
+
+**インスタンスメソッドはクラスに所属**していることにご注意ください!
+
+これはどんなクラスベースの言語でも大抵そう(少なくともC++とPythonはそう)なのですが、インスタンスメソッドはインスタンスとではなくクラスと紐付いています。
+
+`instance_method_belongs_to_class.rb`
+
+```ruby
+class C
+  def instance_method
+  end
+end
 
 
+p C.new.instance_method.object_id == C.new.instance_method.object_id  # => true
+```
+
+これはなぜかというと、インスタンスメソッドは各インスタンスから書き換えられることがないため、各インスタンスが使うメソッド定義をクラスで唯一共有していれば、インスタンスが増えた時もインスタンスメソッドの定義を保持する容量が増加しないためです。
+
+逆に言うと、「同一クラスのインスタンスメソッドである`c1.f`, `c2.f`, `c3.f`のうち、`c3.f`の定義だけ変更する」といったことは出来ません。
+
+(インスタンス固有のメソッドの定義方法が全くないかというとそんなことはなく、それは**特異メソッド**によって可能です。ただし使いどころがいまいち分からないので少なくとも今回は深煎りしません。)
 
 
 
