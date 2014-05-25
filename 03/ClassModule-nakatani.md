@@ -183,9 +183,36 @@ memory_consumption = 123.4 MB
 
 ブロックを使えばイイカンジで実現できます。
 
+`block_pretty_print.rb`
 
-## mutexロック
+```ruby
+def pretty_print
+  puts '(^o^) (^_-) (*^o^*) (T_T)'
+  yield
+  puts '(*_*) (>_<) (;_;) (-_-#)'
+end
 
-## Enamulatable#each
 
-ブロック内で`next`を呼ぶと`yield`直後に
+pretty_print do
+  puts '目立つ'
+  puts '出力'
+end
+```
+
+## `Array#each`っぽいもの
+
+`block_each.rb`
+
+```ruby
+def myeach(array)
+  # この中身を実装してください。
+  # ただし、`Array#each`や`Enumerable`モジュールのメソッドは使用禁止。
+  # `Array#[]`や`Array#size`は可(例: `array[3] = 777`, `array.length`)
+end
+
+
+[1, 2, 3].each { |n| p n**2 }  # => 1 4 9
+myeach([1, 2, 3]) { |n| p n**2 }  # => 1 4 9
+```
+
+解答 => [block_each_ans.rb](src-nakatani/block_each_ans.rb)
