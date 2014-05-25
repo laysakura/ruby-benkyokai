@@ -47,7 +47,7 @@
   - ブロック内の`return`文の挙動
   - 引数の数に関する厳しさ
 - どちらを使うべきか
-  - `lambda` !!
+  - `lambda`
 
 ## ブロック内の`return`文の挙動の違い
 
@@ -71,12 +71,42 @@ p proc_method    # => 10
 
 `lambda`と`Proc.new`で`method`を作り、`method.call`を呼んだ時のそれぞれの挙動:
 
-- `lambda`のときは、ブロック内の`return`の引数が`method.call`の返り値となり、`method.call`と同一スコープの処理が継続する
-- `Proc.new`のときは、ブロック内で`return`を呼び出し の引数が`method.call`の返り値となり、`method.call`と同一スコープの処理が継続する
+- `lambda`のときは、ブロック内の`return`の引数が`method.call`の返り値となり、`lambda_method`の処理が継続する。
+- `Proc.new`のときは、ブロック内で`return`を呼び出した時点で`proc_method`の処理が終了する。返り値は`Proc.new`のブロック内のもの。
+
+このように、`Proc.new`のブロック内で`return`を呼び出す際には注意が必要です。
+
+(注意: `Proc.new { return 10 }` を `Proc.new { return 10 }` に変更すると、この例では20が出力されるようになります。あくまでも`return`を使った時に注意が必要ということですね。)
 
 
 ## 引数の数に関する厳しさの違い
 
+`lambda_proc_num_args.rb`
+
+```ruby
+lambda_method = lambda   { |a, b| p "#{a} #{b}" }
+proc_method   = Proc.new { |a, b| p "#{a} #{b}" }
+
+
+proc_method.call('hello', 'proc')  # => "hello proc"
+lambda_method.call('hello', 'lambda')  # => "hello lambda"
+
+proc_method.call('hello', 'Mr.', 'proc')  # => "hello Mr."
+#lambda_method.call('hello', 'Mr.', 'lambda')  # => ArgumentError
+
+proc_method.call('proc')  # => "proc "  ## `b`には`nil`が渡っている
+#lambda_method.call('lambda')  # => ArgumentError
+```
+
+`lambda`で作成された`Proc`インスタンスは、`lambda`のブロックが取るべき引数の個数に厳格です。
+`lambda`を使った場合のほうが引数の渡し間違えに気づきやすくなります。
+
+## もう一度結論
+
+**`Proc.new`よりも`lambda`を使ったほうが、意外な挙動・ミスが少ない**
+
+- ブロック内の`return`の挙動
+- ブロックが取る引数の個数に対する厳格さ
 
 
 # ブロック・マニアックス
