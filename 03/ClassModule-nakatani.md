@@ -253,3 +253,102 @@ p myall?([4, 2, 1, 0]) { |n| n.even? }  # => false
 ```
 
 解答 => [block_all.rb](src-nakatani/block_all.rb)
+
+
+
+# クラス
+
+## 前回までにクラスについて学んだこと
+
+- クラス定義
+  - `class C ... end`
+- インスタンスの作り方
+  - `c = C.new`
+- カプセル化
+  - インスタンス変数
+    - `attr_accessor`, `attr_reader`, `attr_writer`
+  - インスタンスメソッド
+    - `public`, `private` (, `protected`)
+- 継承
+  - `class Child < Parent`
+- ポリモーフィズム
+  - duck-typing
+
+## コンストラクタ
+
+`Class#new`を呼んでインスタンスが作成された後に特定の処理をしたい場合には、**コンストラクタ**を定義することが出来ます。
+
+コンストラクタには`initialize`という名前のメソッドが使われます。
+
+`constructor.rb`
+
+```ruby
+class Greet
+  def initialize(name)
+    p "Hello, #{name}!!"
+  end
+end
+
+
+obj = Greet.new 'Sho'  # => "Hello, Sho"
+```
+
+## デストラクタ => ない
+
+![深イイ](../resource/image/deep.png)
+
+Rubyにはデストラクタ(インスタンスの生存期間が終わった時に呼び出されるメソッド)はありません。
+
+デストラクタがない理由についてMatzは[こう](http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-list/9026)言っています。
+
+> RubyレベルではGCがあるので，明示的にオブジェクトを破棄する必
+> 要はあまりないはずです．どーしても，GCのタイミングでなんらか
+> の処理が行いたい場合には lib/final.rb を使うワザはありますけ
+> どね．実例としては lib/tempfile.rb を参照して下さい．
+
+そして、ここで `lib/tempfile.rb` と呼ばれているソースを見ると、
+`ObjectSpace#define_finalizer`というメソッドで、GCのタイミングで呼ぶ処理(`@clean_proc`)を定義しています。
+
+`~/.rbenv/versions/2.0.0-p451/lib/ruby/2.0.0/tempfile.rb` (パスは筆者の環境)
+
+```ruby
+class Tempfile < DelegateClass(File)
+  ...
+  def initialize(basename, *rest)
+    ...
+    @clean_proc = Remover.new(@data)
+    ObjectSpace.define_finalizer(self, @clean_proc)
+    ...
+  end
+  ...
+```
+
+このワイルドなインターフェイスからも、Matzはデストラクタを基本的に不要と考えていることが感じられます。
+
+一方で、「前処理 => 本質的な処理 => 後処理」という流れは至るところで出てきます。
+例えば、「DB接続 => DB操作 => DB切断」など・・・??!!!!
+
+あ、ここ進研ゼミで[やったとこ](https://github.com/laysakura/ruby-benkyokai/blob/master/03/ClassModule-nakatani.md#%E3%83%96%E3%83%AD%E3%83%83%E3%82%AF%E3%81%8C%E5%BD%B9%E3%81%AB%E7%AB%8B%E3%81%A4%E5%A0%B4%E5%90%88)だ!!
+
+「前処理 => 本質的な処理 => 後処理」という処理は、ブロックで実現するのがRuby流ということなのでしょうか。
+(僕はよくわからないのでRubyistさん教えてください)
+
+
+## クラス変数
+
+## クラスメソッド
+
+selfはクラスのレシーバ(??)
+
+
+## どこにいる? インスタンスメソッド、クラスメソッド、インスタンス変数、クラス変数
+
+![深イイ](../resource/image/deep.png)
+
+インスタンスメソッド書き換えられるのでは?? => むりなはず => インスタンス固有==特異メソッド
+
+
+
+
+
+# モジュール

@@ -1,7 +1,7 @@
 def myall?(array)
   i = 0
   while i < array.size
-    return false if !(yield array[i])
+    return false unless yield array[i]  # yield文が、実行されたブロックの返り値を返すことに注意
     i += 1
   end
   return true
