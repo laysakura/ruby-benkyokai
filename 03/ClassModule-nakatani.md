@@ -30,6 +30,51 @@
   - クラスとの違い
     - インスタンス作れない
 
+
+
+
+# 宿題 - `Proc.new` と `lambda` の違い、そしてどちらを使うべきか
+
+第2回の加藤くんの発表中にあった質問( https://github.com/laysakura/ruby-benkyokai/issues/6 )の答えを探してきました。
+
+## 結論
+
+- 違い
+  - ブロック内の`return`文の挙動
+  - 引数の数に関する厳しさ
+- どちらを使うべきか
+  - `lambda` !!
+
+## ブロック内の`return`文の挙動の違い
+
+`lambda_proc_return.rb`
+
+```ruby
+def lambda_method
+  method = lambda { return 10 }
+  return 2 * method.call
+end
+
+def proc_method
+  method = Proc.new { return 10 }
+  return 2 * method.call
+end
+
+
+p lambda_method  # => 20
+p proc_method    # => 10
+```
+
+`lambda`と`Proc.new`で`method`を作り、`method.call`を呼んだ時のそれぞれの挙動:
+
+- `lambda`のときは、ブロック内の`return`の引数が`method.call`の返り値となり、`method.call`と同一スコープの処理が継続する
+- `Proc.new`のときは、ブロック内で`return`を呼び出し の引数が`method.call`の返り値となり、`method.call`と同一スコープの処理が継続する
+
+
+## 引数の数に関する厳しさの違い
+
+
+
 # ブロック・マニアックス
 
 ブロックを取るメソッドはとても便利に使えるので、
