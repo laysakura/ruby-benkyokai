@@ -1,7 +1,9 @@
 def myeach(array)
-  # この中身を実装してください。
-  # ただし、`Array#each`や`Enumerable`モジュールのメソッドは使用禁止。
-  # `Array#[]`や`Array#size`は可(例: `array[3] = 777`, `array.length`)
+  i = 0
+  while i < array.size
+    yield array[i]
+    i += 1
+  end
 end
 
 

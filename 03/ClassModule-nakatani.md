@@ -118,6 +118,8 @@ proc_method.call('proc')  # => "proc "  ## `b`には`nil`が渡っている
 
 Rubyで標準的に使われるブロックを取るメソッドを紹介し、それと同じような動作をするメソッドを作っていきます。
 
+みなさま、エディタのご用意を。
+
 ## ブロック復習
 
 加藤くんの`neatly_open`メソッドの使い方と定義をおさらいしましょう。
@@ -201,8 +203,6 @@ end
 
 ## `Array#each`っぽいもの
 
-`block_each.rb`
-
 ```ruby
 def myeach(array)
   # この中身を実装してください。
@@ -215,4 +215,41 @@ end
 myeach([1, 2, 3]) { |n| p n**2 }  # => 1 4 9
 ```
 
-解答 => [block_each_ans.rb](src-nakatani/block_each_ans.rb)
+解答 => [block_each.rb](src-nakatani/block_each.rb)
+
+
+## `Enuerable#each_with_index`っぽいもの
+
+```ruby
+def myeach_with_index(array)
+  # この中身を実装してください。
+  # ただし、`Array#each`や`Enumerable`モジュールのメソッドは使用禁止。
+  # `Array#[]`や`Array#size`は可(例: `array[3] = 777`, `array.length`)
+end
+
+
+%w(zero one two).each_with_index { |s, i| p "#{i}:#{s}" }  # => "0:zero" "1:one" "2:two"
+myeach_with_index(%w(zero one two)) { |s, i| p "#{i}:#{s}" }  # => "0:zero" "1:one" "2:two"
+```
+
+解答 => [block_each_with_index.rb](src-nakatani/block_each_with_index.rb)
+
+
+## `Enuerable#all?`っぽいもの
+
+```ruby
+def myall?(array)
+  # この中身を実装してください。
+  # ただし、`Array#each`や`Enumerable`モジュールのメソッドは使用禁止。
+  # `Array#[]`や`Array#size`は可(例: `array[3] = 777`, `array.length`)
+end
+
+
+p [4, 2, 8, 0].all? { |n| n.even? }  # => true
+p [4, 2, 1, 0].all? { |n| n.even? }  # => false
+
+p myall?([4, 2, 8, 0]) { |n| n.even? }  # => true
+p myall?([4, 2, 1, 0]) { |n| n.even? }  # => false
+```
+
+解答 => [block_all.rb](src-nakatani/block_all.rb)
