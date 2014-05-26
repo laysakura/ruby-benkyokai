@@ -566,3 +566,5 @@ p C.new.instance_method.object_id == C.new.instance_method.object_id  # => true
   - クラスとの違い
     - インスタンス作れない
   - mix-in
+
+- (次回からは8hと時間を決めてノーガード資料を作ってみる)
