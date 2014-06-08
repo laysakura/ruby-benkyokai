@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [モジュール](#モジュール)
+  - [モジュールによる名前空間](#モジュールによる名前空間)
+- [モジュールによるmix-in](#モジュールによるmix-in)
+    - [`Enumerable`モジュール](#enumerableモジュール)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # モジュール
 
 モジュールはクラス似た機能ですが、以下の2点が異なります。
