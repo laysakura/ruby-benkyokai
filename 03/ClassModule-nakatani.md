@@ -775,8 +775,6 @@ mix-inパターンを利用した有名な例は、標準クラスの`Array`や`
 `module_integer_list.rb`
 
 ```ruby
-require 'pry'
-
 class IntegerList
   include Enumerable
 

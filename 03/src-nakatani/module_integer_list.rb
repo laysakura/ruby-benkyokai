@@ -1,5 +1,3 @@
-require 'pry'
-
 class IntegerList
   include Enumerable
 
