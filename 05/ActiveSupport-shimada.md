@@ -114,8 +114,8 @@ p1 = Point.new(1,3)
 p2 = nil
 
 # try?がない場合
-p1.length　# => 3.1622776601683795
-p2.length  # => NoMethodError: undefined method `length' for nil:NilClass
+p1.length # => 3.1622776601683795
+p2.length # => NoMethodError: undefined method `length' for nil:NilClass
 p1.try(:length) # => 3.1622776601683795
 p2.try(:length) # => nil
 
@@ -145,11 +145,18 @@ puts p.instance_values # => {"x"=>10, "y"=>20}
 ```ruby
 # ...を含めて22文になるようにする)
 "Active Support is the Ruby on Rails component.".truncate(22) # => "Active Support is t..." 
-"Active Support is the Ruby on Rails component.".truncate(22, {:ommision => "!!!"}) # => "Active Support is t!!!"
+
+# 省略した時に表示される文字列を変える
+"Active Support is the Ruby on Rails component.".truncate(22, {:ommision => "!!!"}) 
+# => "Active Support is t!!!"
+
 # 自然な区切りになるようにする
-"Active Support is the Ruby on Rails component.".truncate(22, {:separator => ' '}) # => "Active Support is..." 
+"Active Support is the Ruby on Rails component.".truncate(22, {:separator => ' '}) 
+# => "Active Support is..." 
+
 # 日本語はどうなるのか？
-"日本語の長い文字列は一体どうなってしまうのか".truncate(20) # => "日本語の長い文字列は一体どうなって..."
+"日本語の長い文字列は一体どうなってしまうのか".truncate(20)
+# => "日本語の長い文字列は一体どうなって..."
 ```
 
 ### at, from, to
@@ -238,7 +245,7 @@ Array.wrap({:a => "b"})  # => [{:a => "b"}]
 * 単数形，複数形どっちでもいけます
 
 ```ruby
-2.years.from_now　# 今から2年後
+2.years.from_now # 今から2年後
 (2.months + 3.years).from_now #=> 今から3年2ヶ月後
 ```
 
