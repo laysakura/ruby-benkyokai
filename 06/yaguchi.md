@@ -10,7 +10,10 @@
         * ActiveSupport
         * Refinements
     * メソッドの動的な呼び出し
+    * メソッドの動的な定義
     * method_missing
+* [今日話さなかった内容](#今日話さなかった内容)
+* [参考](#参考)
 
 
 ## はじめに
@@ -170,10 +173,250 @@ use warnings;
 1;
 ```
 
-## Rubyの柔軟性
-
-
 ## Rubyにおけるメタプログラミング
+### メタ情報の取得
+#### Object#
+* methods、private_methods、protected_methods、public_methods
+    * そのオブジェクトが持っているメソッドを返す
+* respond_to?
+    * そのオブジェクトがメソッドを持っていればtrueを返す
+
+```ruby
+[].respond_to? :sort # => true
+[].respond_to? :quick_sort # => false
+```
+
+#### Module#
+* ancestors
+    * 継承ツリーを返す
+* class_variables
+    * クラス変数の一覧を返す
+* constants
+    * 定数の一覧を返す
+* included_modules
+    * そのモジュールがincludeしているモジュールの一覧を返す
+* instance_methods、private_instance_methods、protected_instance_methods、public_instance_methods
+    * そのクラスのインスタンスのメソッド一覧を返す
+
+```ruby
+Array.ancestors # => [Array, Enumerable, Object, PP::ObjectMixin, Kernel, BasicObject]
+
+Math.constants  # => [:DomainError, :PI, :E]
+
+Array.included_modules # => [Enumerable, PP::ObjectMixin, Kernel]
+```
+
+* Class#
+    * superclass
+
+```ruby
+module Foo
+  def self.hoge
+    puts 'hoge'
+  end
+
+  def fuga
+    puts 'fuga'
+  end
+end
+
+Foo.methods.find { |e| e == :hoge } # => :hoge
+Foo.instance_methods                # => [:fuga]
+```
+
+### オープンクラス
+
+```ruby
+class Foo
+  def foo
+    "Foo#foo"
+  end
+end
+
+class Foo
+  def bar
+    "Foo#bar"
+  end
+end
+
+class Foo
+  def baz
+    "Foo#baz"
+  end
+end
+
+f = Foo.new
+f.foo # => "Foo#foo"
+f.bar # => "Foo#bar"
+f.baz # => "Foo#baz"
+```
+
+* ```class```キーワードのやっていることは2つ
+    * もしクラスが存在していなかったら作成する
+    * そのクラスのスコープの中に入る
+* rubyは実行時に**カレントクラス**を覚えている
+
+```ruby
+class Foo
+  def foo
+    def bar
+      'bar'
+    end
+  end
+end
+
+f = Foo.new
+f.bar # => NoMethodError
+f.foo # => nil
+f.bar # => 'bar'
+```
+
+#### Refinements
+* rubyのオープンクラスは強力すぎるため、制限を加えるために追加された機能
+* 2.0ではexperimental
+* 2.1からは普通に使える
+
+```ruby
+module SayString
+  refine String do
+    def say
+      puts self
+    end
+  end
+end
+
+"hoge".say # => NoMethodError
+using SayString
+"hoge".say # hoge
+```
+
+* refineメソッドで拡張を定義
+* usingメソッドを使ったスコープ内でのみ、拡張を使える
+
+
+### メソッドの動的な呼び出し
+* Object#send
+
+```ruby
+ary = [1, 3, 5]
+ary.size             # => 3
+ary.send(:size)      # => 3
+ary.send(:+, [7, 9]) # => [1, 3, 5, 7, 9]
+```
+
+### メソッドの動的な定義
+* Module#define_method
+
+```ruby
+class Static
+  def succ(n)
+    n + 1
+  end
+end
+
+class Dynamic
+  define_method(:succ) do |n|
+    n + 1
+  end
+end
+
+Static.new.succ(10)  # => 11
+Dynamic.new.succ(10) # => 11
+
+class Static
+  def foo; puts "foo"; end
+  def bar; puts "bar"; end
+  def baz; puts "baz"; end
+end
+
+class Dynamic
+  %w/foo bar baz/.each do |name|
+    define_method(name) do
+      puts name
+    end
+  end
+end
+```
+
+#### alias_method
+* Module#alias_method
+    * あるメソッドのエイリアスを定義する
+
+```ruby
+class Array
+    alias_method :my_count, :count
+end
+
+[1,3,5,7,9].my_count # => 5
+```
+
+### method_missing
+* 呼び出したメソッドが存在しなかった時、最終的に呼び出されるメソッド
+* デフォルトではNoMethodErrorを発生させる
+
+```ruby
+class Foo
+  def method_missing(method, *args)
+    puts "#{method} was called, but not defined"
+    puts "  args: #{args}"
+  end
+end
+
+Foo.new.hoge
+# hoge was called, but not defined
+#   args: []
+
+Foo.new.hoge(3, 2, 1, foo: 20)
+# hoge was called, but not defined
+#   args: [1, 2, 3, {:foo=>10}]
+```
+
+#### よくある用途
+* 移譲
+
+```ruby
+class ArrayProxy
+  def initialize
+    @array = []
+  end
+
+  def method_missing(method, *args)
+    if @array.respond_to? method
+      @array.send(method, *args)
+    else
+      super
+    end
+  end
+
+  def respond_to?(method)
+    @array.respond_to? method || super
+  end
+end
+```
+
+* 注意
+    * method_missingをオーバーライドしたら、必ずrespond_to?もオーバーライドすること
+
+
+### 今日話さなかった内容
+* メタプロがどういう用途で役立つか
+    * ライブラリで多く使われている
+        * 特にrails
+    * GitHubの有名なライブラリで検索してみるといいかも
+* classの動的な扱い
+* eval族の話
+* 特異クラス、特異メソッド
+* rubyのオブジェクトモデル、継承ツリー
+    * 後述のメタプログラミングrubyで学ぶのがおすすめ
 
 
 
+### 参考
+* [メタプログラミングruby](http://www.amazon.co.jp/%E3%83%A1%E3%82%BF%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0Ruby-Paolo-Perrotta/dp/4048687158)
+    * rubyでのメタプログラミングを学びたい人にとって良著
+    * rubyの仕様、内部構造を学びたい人にも良著
+    * ruby書く人は読んで損はない
+* [TRICK 2013](https://sites.google.com/site/trickcontest2013/home/ja)
+    * IOCCCにインスパイアされた、意味不明なrubyコードを書くコンテスト
+    * rubyの機能や仕様を知るキッカケになるかもしれない
+    * 上位入賞者のコードがGitHubに上がっているので、興味がある人は読んでみるといいかも
