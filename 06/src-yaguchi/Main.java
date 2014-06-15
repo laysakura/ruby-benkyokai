@@ -8,11 +8,21 @@ class Foo {
 
 class Main {
     public static void main(String[] args) {
-        Class<?> cls = Foo.class;
-        Method[] methods = cls.getMethods();
+        try {
+            Class<?> cls = Foo.class;
+            Method[] methods = cls.getMethods();
 
-        for (Method m : methods) {
-            System.out.println(m);
+            Foo foo = new Foo();
+            for (Method m : methods) {
+                System.out.println(m.getName());
+
+                if (m.getName().equals("succ")) {
+                    int res = (Integer)m.invoke(foo, Integer.valueOf(10));
+                    System.out.println("result: " + res);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
