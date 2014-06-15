@@ -1,15 +1,21 @@
+* [はじめに](#はじめに)
 * [メタプログラミングとは](#メタプログラミングとは)
-  * macro (C)
-  * TMP (C++)
-  * Reflection (Java)
-  * 型グロブ (Perl)
+    * macro (C)
+    * TMP (C++)
+    * Reflection (Java)
+    * 型グロブ (Perl)
 * [Rubyにおけるメタプログラミング](#Rubyにおけるメタプログラミング)
-  * オープンクラス
-    * ActiveSupport
-    * Refinements
-  * メタ情報の取得
-    * Module#constants
-  * method_missing
+    * メタ情報の取得
+    * オープンクラス
+        * ActiveSupport
+        * Refinements
+    * メソッドの動的な呼び出し
+    * method_missing
+
+
+## はじめに
+rubyはとても強力で、とても柔軟で、たまに直感からは想像がつかない挙動をしたりする言語です。
+rubyでどんな書き方ができるのか、なぜそうなっているのか、どう使うと便利なのかを考えながら、いろいろ試したり調べたりしながら話を聞いていただければ幸いです。
 
 
 ## メタプログラミングとは
