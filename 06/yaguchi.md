@@ -1,8 +1,8 @@
 * [はじめに](#はじめに)
 * [メタプログラミングとは](#メタプログラミングとは)
-    * macro (C)
-    * TMP (C++)
-    * Reflection (Java)
+    * マクロ (C)
+    * テンプレートメタプログラミング (C++)
+    * リフレクション (Java)
     * 型グロブ (Perl)
 * [Rubyにおけるメタプログラミング](#Rubyにおけるメタプログラミング)
     * メタ情報の取得
@@ -16,12 +16,12 @@
 * [参考](#参考)
 
 
-## はじめに
+# はじめに
 rubyはとても強力で、とても柔軟で、たまに直感からは想像がつかない挙動をしたりする言語です。
 rubyでどんな書き方ができるのか、なぜそうなっているのか、どう使うと便利なのかを考えながら、いろいろ試したり調べたりしながら話を聞いていただければ幸いです。
 
 
-## メタプログラミングとは
+# メタプログラミングとは
 > メタプログラミング (metaprogramming) とはプログラミング技法の一種で、ロジックを直接コーディングするのではなく、あるパターンをもったロジックを生成する高位ロジックによってプログラミングを行う方法、またその高位ロジックを定義する方法のこと。
 > 主に対象言語に埋め込まれたマクロ言語によって行われる。
 >
@@ -35,11 +35,11 @@ rubyでどんな書き方ができるのか、なぜそうなっているのか�
 >
 > http://d.hatena.ne.jp/fromdusktildawn/20061002/1159784863
 
-#### マクロ(C言語)
-* 機械的な文字列の置き換え
+## マクロ (C)
+* コンパイル前処理（プリプロセス）に、機械的な文字列の置き換えを行う
 * 引数を取ることができる
 
-##### Before
+### Before
 ```c
 #include <stdio.h>
 
@@ -51,7 +51,7 @@ def_func(foo)
 def_func(bar)
 ```
 
-##### After
+### After
 ```c
 #include <stdio.h>
 
@@ -63,11 +63,11 @@ void foo() { fputs("foo", stdout); }
 void bar() { fputs("bar", stdout); }
 ```
 
-#### テンプレートメタプログラミング(C++)
+## テンプレートメタプログラミング (C++)
 * コンパイル時計算を行う
 * 実行時には計算したい内容がすでに定数になっている
 
-##### Before
+### Before
 ```cpp
 template <int N> struct Factorial {
     enum { value = N * Factorial<N - 1>::value };
@@ -84,7 +84,7 @@ int main()
 }
 ```
 
-##### After
+### After
 ```cpp
 template <> struct Factorial<4> {
     enum { value = 24 };
@@ -113,7 +113,7 @@ int main()
 }
 ```
 
-#### リフレクション
+## リフレクション (Java)
 * 実行時のクラス・メソッドの取得
 * 動的なメソッドの呼び出し
 
@@ -148,7 +148,7 @@ class Main {
 }
 ```
 
-#### 型グロブ
+## 型グロブ (Perl)
 * scalar、array、hash、subroutineなどの取得、再定義ができる
 * 動的なサブルーチンの定義によく使われる
 
@@ -173,9 +173,9 @@ use warnings;
 1;
 ```
 
-## Rubyにおけるメタプログラミング
-### メタ情報の取得
-#### Object#
+# Rubyにおけるメタプログラミング
+## メタ情報の取得
+### Object#
 * methods、private_methods、protected_methods、public_methods
     * そのオブジェクトが持っているメソッドを返す
 * respond_to?
@@ -186,7 +186,7 @@ use warnings;
 [].respond_to? :quick_sort # => false
 ```
 
-#### Module#
+### Module#
 * ancestors
     * 継承ツリーを返す
 * class_variables
@@ -206,9 +206,6 @@ Math.constants  # => [:DomainError, :PI, :E]
 Array.included_modules # => [Enumerable, PP::ObjectMixin, Kernel]
 ```
 
-* Class#
-    * superclass
-
 ```ruby
 module Foo
   def self.hoge
@@ -224,7 +221,10 @@ Foo.methods.find { |e| e == :hoge } # => :hoge
 Foo.instance_methods                # => [:fuga]
 ```
 
-### オープンクラス
+### Class#
+* superclass
+
+## オープンクラス
 
 ```ruby
 class Foo
@@ -271,7 +271,7 @@ f.foo # => nil
 f.bar # => 'bar'
 ```
 
-#### Refinements
+### Refinements
 * rubyのオープンクラスは強力すぎるため、制限を加えるために追加された機能
 * 2.0ではexperimental
 * 2.1からは普通に使える
@@ -294,7 +294,7 @@ using SayString
 * usingメソッドを使ったスコープ内でのみ、拡張を使える
 
 
-### メソッドの動的な呼び出し
+## メソッドの動的な呼び出し
 * Object#send
 
 ```ruby
@@ -304,7 +304,7 @@ ary.send(:size)      # => 3
 ary.send(:+, [7, 9]) # => [1, 3, 5, 7, 9]
 ```
 
-### メソッドの動的な定義
+## メソッドの動的な定義
 * Module#define_method
 
 ```ruby
@@ -338,7 +338,7 @@ class Dynamic
 end
 ```
 
-#### alias_method
+### alias_method
 * Module#alias_method
     * あるメソッドのエイリアスを定義する
 
@@ -350,7 +350,7 @@ end
 [1,3,5,7,9].my_count # => 5
 ```
 
-### method_missing
+## method_missing
 * 呼び出したメソッドが存在しなかった時、最終的に呼び出されるメソッド
 * デフォルトではNoMethodErrorを発生させる
 
@@ -371,7 +371,7 @@ Foo.new.hoge(3, 2, 1, foo: 20)
 #   args: [1, 2, 3, {:foo=>10}]
 ```
 
-#### よくある用途
+### よくある用途
 * 移譲
 
 ```ruby
@@ -398,7 +398,7 @@ end
     * method_missingをオーバーライドしたら、必ずrespond_to?もオーバーライドすること
 
 
-### 今日話さなかった内容
+# 今日話さなかった内容
 * メタプロがどういう用途で役立つか
     * ライブラリで多く使われている
         * 特にrails
@@ -411,7 +411,7 @@ end
 
 
 
-### 参考
+# 参考
 * [メタプログラミングruby](http://www.amazon.co.jp/%E3%83%A1%E3%82%BF%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0Ruby-Paolo-Perrotta/dp/4048687158)
     * rubyでのメタプログラミングを学びたい人にとって良著
     * rubyの仕様、内部構造を学びたい人にも良著
