@@ -38,3 +38,6 @@ conn_w = MysqlUtil.connect('master.db.example.com', 'root')
 
 p MysqlUtil::Sql.supported_commands
 # => ["select", "insert"]
+
+include MysqlUtil
+connect('master.db.example.com', 'root')
