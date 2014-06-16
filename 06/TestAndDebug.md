@@ -181,7 +181,7 @@ RSpecには他のテストフレームワークではあまり見られない機
 
 発表中に使うので、以下のGemをインストールしておいてください。
 
-```ruby
+```bash
 $ gem install rspec json-schema pry-debugger
 ```
 
@@ -189,7 +189,7 @@ $ gem install rspec json-schema pry-debugger
 
 この発表では、RSpecの以下の機能について触れます。
 
-- `describe`, `subject`, `it`
+- `describe`, `subject`, `it`, `expect`
 - `context`, `before`, `after`
 - `let`
 - `shared_examples`, `shared_context`
@@ -251,7 +251,7 @@ end
 `src-nakatani/typed-csv/spec/lib/parser_01_spec.rb`
 
 ```ruby
-require 'parser'
+require 'parser_01'
 
 describe 'convert_csv_values' do
 end
@@ -281,6 +281,622 @@ Finished in 0.00018 seconds (files took 0.08224 seconds to load)
 
 という風にします。
 
+## `describe`, `subject`, `it`, `expect`
+
+次に、テストコードを追加しましょう。テストファースト()ってやつです。
+
+まずはJSON Schemaの指定はなしで、CSVの値が全部`String`で返ってくることを期待するテストを書きましょう。
+
+`src-nakatani/typed-csv/lib/parser_02.rb`
+
+```ruby
+module TypedCsv
+  module_function
+
+  def convert_csv_values
+  end
+end
+```
+
+`src-nakatani/typed-csv/spec/lib/parser_02_spec.rb`
+
+```ruby
+require 'parser_02'
+
+describe 'convert_csv_values' do
+  it 'should return Sting values' do
+    in_csv = <<'EOS'
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+EOS
+
+    out_data = [
+      { id: '1', name: 'Sho Nakatani', weight: '65.2', around_30s: 'true' },
+      { id: '2', name: 'Naoki Yaguchi', weight: '68.7', around_30s: 'false' }
+    ]
+
+    result = TypedCsv::convert_csv_values in_csv
+
+    expect(result).to eq out_data
+  end
+end
+```
+
+テスト対象のメソッド定義が変わってないので通るはずはないですが、とりあえずまずは走らせてみましょう。
+
+```bash
+$ rspec spec/lib/parser_01_spec.rb
+F
+
+Failures:
+
+  1) convert_csv_values should return Sting values
+     Failure/Error: result = TypedCsv::convert_csv_values in_csv
+     ArgumentError:
+       wrong number of arguments (1 for 0)
+     # ./lib/parser_02.rb:4:in `convert_csv_values'
+     # ./spec/lib/parser_02_spec.rb:16:in `block (2 levels) in <top (required)>'
+
+Finished in 0.00036 seconds (files took 0.0822 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/lib/parser_02_spec.rb:4 # convert_csv_values should return Sting values
+```
+
+'convert_csv_values should return Sting values' というテストケースが`ArgumentError`でfailしていることが分かるでしょうか?
+
+### `describe`
+
+`describe`はテストケースをまとめるためのものです。あまり深く考えなくても大丈夫。
+
+
+### `it`
+
+`it`の1つ1つがテストケースです。`it`は`describe`に囲んで記述します。
+
+`describe`の第一引数の文字列と`it`の第一引数の文字列が結合したものがテストケース名になります。
+
+(例: 'convert_csv_values should return Sting values')
+
+
+### `expect`
+
+テストケースの中の1つ1つのテストは`expect`で記述します。
+`Test::More`の`is`や`ok`を強化したようなものと思いましょう。
+
+使い方は様々で、
+
+```ruby
+it do
+  expect(hoge).to eq 777
+  expect(foo).to be_true
+  expect { block }.to raise_error SomeError
+end
+```
+
+などできます。
+
+### テストを通したい
+
+`convert_csv_values`を実装し、テストが通るようにします。
+
+`src-nakatani/typed-csv/lib/parser_03.rb`
+
+```ruby
+require 'csv'
+
+module TypedCsv
+  module_function
+
+  def convert_csv_values(csv_str)
+    CSV.parse(csv_str, col_sep: ',')
+  end
+end
+```
+
+```bash
+$ rspec spec/lib/parser_03_spec.rb
+F
+
+Failures:
+
+  1) convert_csv_values should return Sting values
+     Failure/Error: expect(result).to eq out_data
+
+       expected: [{:id=>"1", :name=>"Sho Nakatani", :weight=>"65.2", :around_30s=>"true"}, {:id=>"2", :name=>"Naoki Yaguchi", :weight=>"68.7", :around_30s=>"false"}]
+            got: [["id", "name", "weight", "around_30s"], ["1", "Sho Nakatani", "65.2", "true"], ["2", "Naoki Yaguchi", "68.7", "false"]]
+
+       (compared using ==)
+
+       Diff:
+       @@ -1,3 +1,4 @@
+       -[{:id=>"1", :name=>"Sho Nakatani", :weight=>"65.2", :around_30s=>"true"},
+       - {:id=>"2", :name=>"Naoki Yaguchi", :weight=>"68.7", :around_30s=>"false"}]
+       +[["id", "name", "weight", "around_30s"],
+       + ["1", "Sho Nakatani", "65.2", "true"],
+       + ["2", "Naoki Yaguchi", "68.7", "false"]]
+     # ./spec/lib/parser_03_spec.rb:18:in `block (2 levels) in <top (required)>'
+
+Finished in 0.00149 seconds (files took 0.09089 seconds to load)
+1 example, 1 failure
+
+Failed examples:
+
+rspec ./spec/lib/parser_03_spec.rb:4 # convert_csv_values should return Sting values
+```
+
+ハッシュの配列を期待しているのに、`convert_csv_values`から返ってきているのは2次元配列ですね。
+
+以下のように修正します。
+
+`src-nakatani/typed-csv/lib/parser_04.rb`
+
+```ruby
+require 'csv'
+
+module TypedCsv
+  module_function
+
+  def convert_csv_values(csv_str)
+    csv = CSV.parse(csv_str, col_sep: ',')
+
+    headers = csv.shift
+    csv.map do |row|
+      row_obj = {}
+      row.each_with_index do |col, i|
+        col_name = headers[i]
+        row_obj[col_name.to_sym] = col
+      end
+    end
+  end
+end
+```
+
+テストを走らすと・・・落ちる!
+
+ここでデバッガを使ってみましょう。
+
+### `pry-debugger`を使う
+
+第1回に村上が`pry`の話をしてくれました。
+`pry`は実は拡張可能で、`pry-debugger` Gemをインストールすることでデバッガとしても使えます。
+
+まずは適当にブレークポイントをはさみましょう。
+
+`src-nakatani/typed-csv/lib/parser_05.rb`
+
+```ruby
+require 'csv'
+
+module TypedCsv
+  module_function
+
+  def convert_csv_values(csv_str)
+    csv = CSV.parse(csv_str, col_sep: ',')
+
+    binding.pry
+
+    headers = csv.shift
+    csv.map do |row|
+      row_obj = {}
+      row.each_with_index do |col, i|
+        col_name = headers[i]
+        row_obj[col_name.to_sym] = col
+      end
+    end
+  end
+end
+```
+
+次にテストコードを走らせると、ブレークポイントで停止します。
+
+```bash
+$ rspec spec/lib/parser_05_spec.rb
+
+From: /Users/nakatani.sho/git/ruby-benkyokai/06/src-nakatani/typed-csv/lib/parser_05.rb @ line 10 TypedCsv.convert_csv_values:
+
+     7: def convert_csv_values(csv_str)
+     8:   csv = CSV.parse(csv_str, col_sep: ',')
+     9:
+ => 10:   binding.pry  # ブレークポイント
+    11:
+    12:   headers = csv.shift
+    13:   csv.map do |row|
+    14:     row_obj = {}
+    15:     row.each_with_index do |col, i|
+    16:       col_name = headers[i]
+    17:       row_obj[col_name.to_sym] = col
+    18:     end
+    19:   end
+    20: end
+
+[1] pry(TypedCsv)>
+```
+
+この時点で「`csv`変数に何が入っているか」といった情報が見れるようになりますが、もう少し先に進んで変数の状態を見たいと思います。
+`pry-debugger`が入っていれば、次の命令までジャンプする`next`命令が使えます。
+
+`next`を連打しつつ`row_obj`が構築されていく様子を見ると、`row_obj`自体はうまく出来ている様子・・・
+ここで、`csv.map`の呼び出し時にブロックが`row_obj`を返していないことに気づきます。修正しましょう。
+
+`src-nakatani/typed-csv/lib/parser_06.rb`
+
+```ruby
+require 'csv'
+
+module TypedCsv
+  module_function
+
+  def convert_csv_values(csv_str)
+    csv = CSV.parse(csv_str, col_sep: ',')
+
+    headers = csv.shift
+    csv.map do |row|
+      row.each_with_index.each_with_object({}) do |(col, i), row_obj|
+        col_name = headers[i]
+        row_obj[col_name.to_sym] = col
+      end
+    end
+  end
+end
+```
+
+```bash
+$ rspec spec/lib/parser_06_spec.rb
+.
+
+Finished in 0.00083 seconds (files took 0.09464 seconds to load)
+1 example, 0 failures
+```
+
+見事にテストがとおりました。
+
+
+## `context`, `before`, `after`
+
+これだけでは、`convert_csv_values`メソッドはCSVの値を全て`String`としています。
+JSON Schemaを見て型をつけるように修正しましょう。
+
+またテストケースを先に追加します。
+
+`convert_csv_values`はオプションとしてJSON Schemaを取れるようにしましょう。
+
+`src-nakatani/typed-csv/spec/lib/parser_07_spec.rb`
+
+```ruby
+require 'parser_07'
+
+describe 'convert_csv_values' do
+  it 'should return Sting values' do
+    in_csv = <<'EOS'
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+EOS
+
+    out_data = [
+      { id: '1', name: 'Sho Nakatani', weight: '65.2', around_30s: 'true' },
+      { id: '2', name: 'Naoki Yaguchi', weight: '68.7', around_30s: 'false' }
+    ]
+
+    result = TypedCsv::convert_csv_values in_csv
+
+    expect(result).to eq out_data
+  end
+
+  it 'should return Sting values when JSON Schema is passed' do
+    in_csv = <<'EOS'
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+EOS
+
+    json_schema = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+          weight: { type: 'number' },
+          around_30s: { type: 'boolean' }
+        }
+      }
+    }
+
+    out_data = [
+      { id: 1, name: 'Sho Nakatani', weight: 65.2, around_30s: true },
+      { id: 2, name: 'Naoki Yaguchi', weight: 68.7, around_30s: false }
+    ]
+
+    result = TypedCsv::convert_csv_values(in_csv, json_schema)
+
+    expect(result).to eq out_data
+  end
+end
+```
+
+このテストコードは非常に冗長ですね。2つのテストケースで以下のものが重複しています。
+
+- `in_csv`の定義
+- `out_data`の定義
+  - valueの型は違えど
+- `result = TypedCsv::convert_csv_values(...)` のコード
+- `expect(result).to eq out_data` のテスト結果の確認
+
+DRYなエンジニアである皆様には許せないテストコードかと思います。
+
+まずは`in_csv`の定義の重複をなくすところから始めましょう。
+各`it`実行前に必ず実行される`before`ブロックを定義します。
+
+`src-nakatani/typed-csv/spec/lib/parser_08_spec.rb`
+
+```ruby
+require 'parser_08'
+
+describe 'convert_csv_values' do
+  before do
+    @in_csv = <<'EOS'
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+EOS
+  end
+
+  it 'should return Sting values' do
+    out_data = [
+      { id: '1', name: 'Sho Nakatani', weight: '65.2', around_30s: 'true' },
+      { id: '2', name: 'Naoki Yaguchi', weight: '68.7', around_30s: 'false' }
+    ]
+
+    result = TypedCsv::convert_csv_values @in_csv
+
+    expect(result).to eq out_data
+  end
+
+  it 'should return Sting values when JSON Schema is passed' do
+    json_schema = {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+          weight: { type: 'number' },
+          around_30s: { type: 'boolean' }
+        }
+      }
+    }
+
+    out_data = [
+      { id: 1, name: 'Sho Nakatani', weight: 65.2, around_30s: true },
+      { id: 2, name: 'Naoki Yaguchi', weight: 68.7, around_30s: false }
+    ]
+
+    result = TypedCsv::convert_csv_values(@in_csv, json_schema)
+
+    expect(result).to eq out_data
+  end
+end
+```
+
+`before`の中で定義した変数を`it`の中でも使うには、`@`をつけてインスタンス変数にします(ただし、後述するように`let`を使用したほうがベターです)。
+`after`についても同様に、`it`の後に実行する共通処理を書くことができます。今回は不要です。
+
+次は `result = TypedCsv::convert_csv_values(...)` の重複を取り除きましょう。
+重複と言っても、`convert_csv_values`に渡す引数は2つのテストケースで異なります。
+このような微妙な違いは「コンテキストの違い」という風に落としこむのがRSpecの流儀です。
+コードを見ましょう。
+
+`src-nakatani/typed-csv/spec/lib/parser_09_spec.rb`
+
+```ruby
+require 'parser_09'
+
+describe 'convert_csv_values' do
+  before do
+    @in_csv = <<'EOS'
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+EOS
+  end
+
+  context 'when type is not defined by JSON Schema' do
+    it 'should return Sting values' do
+      json_schema = {}  # 型検査用のJSON Schema定義なし
+
+      out_data = [
+        { id: '1', name: 'Sho Nakatani', weight: '65.2', around_30s: 'true' },
+        { id: '2', name: 'Naoki Yaguchi', weight: '68.7', around_30s: 'false' }
+      ]
+
+      result = TypedCsv::convert_csv_values(@in_csv, json_schema)
+
+      expect(result).to eq out_data
+    end
+  end
+
+  context 'when type is defined by JSON Schema' do
+    it 'should return Sting values when JSON Schema is passed' do
+      json_schema = {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+            weight: { type: 'number' },
+            around_30s: { type: 'boolean' }
+          }
+        }
+      }
+
+      out_data = [
+        { id: 1, name: 'Sho Nakatani', weight: 65.2, around_30s: true },
+        { id: 2, name: 'Naoki Yaguchi', weight: 68.7, around_30s: false }
+      ]
+
+      result = TypedCsv::convert_csv_values(@in_csv, json_schema)
+
+      expect(result).to eq out_data
+    end
+  end
+end
+```
+
+それぞれのコンテキストで、`json_schema`の定義と期待する`out_data`だけが違う状態になりました。
+これの何が嬉しいかというと、
+
+1. あるコンテキストでテストしたい項目が複数あるとき、`context`ブロックの中に複数の`it`を書けばコンテキストを定義するためのコード(変数代入、テーブル作成、etc...)を共通化できる
+2. `shared_examples`を使うことで、`expect`する部分をコンテキストをまたいで共通化できる
+
+ということです。
+
+後者について実例で学びます。
+2つのテストケースで共通な点は
+```ruby
+      result = TypedCsv::convert_csv_values(@in_csv, json_schema)
+      expect(result).to eq out_data
+```
+というコードであり、異なる点は`json_schema`と`out_data`です。
+次のテストコードは、共通部分と異なる部分を明確にしています。
+
+`src-nakatani/typed-csv/spec/lib/parser_10_spec.rb`
+
+```ruby
+require 'parser_10'
+
+describe 'convert_csv_values' do
+  before do
+    @in_csv = <<'EOS'
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+EOS
+  end
+
+  shared_examples 'should parse CSV with specified type' do
+    it do
+      result = TypedCsv::convert_csv_values(@in_csv, @json_schema)
+      expect(result).to eq @out_data
+    end
+  end
+
+  context 'when type is not defined by JSON Schema' do
+    before do
+      @json_schema = {}
+      @out_data = [
+        { id: '1', name: 'Sho Nakatani', weight: '65.2', around_30s: 'true' },
+        { id: '2', name: 'Naoki Yaguchi', weight: '68.7', around_30s: 'false' }
+      ]
+    end
+
+    it_behaves_like 'should parse CSV with specified type'
+  end
+
+  context 'when type is defined by JSON Schema' do
+    before do
+      @json_schema = {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+            weight: { type: 'number' },
+            around_30s: { type: 'boolean' }
+          }
+        }
+      }
+
+      @out_data = [
+        { id: 1, name: 'Sho Nakatani', weight: 65.2, around_30s: true },
+        { id: 2, name: 'Naoki Yaguchi', weight: 68.7, around_30s: false }
+      ]
+    end
+
+    it_behaves_like 'should parse CSV with specified type'
+  end
+end
+```
+
+だいぶスッキリしてきました!
+`shared_examples`の中の`it`では、`json_schema`と`out_data`が外部から与えられることを反映してインスタンス変数になっています。
+
+では、このテストが通るように`convert_csv_values`を書き換えましょう。
+
+`src-nakatani/typed-csv/lib/parser_10_spec.rb`
+
+```ruby
+require 'csv'
+
+class String  # オープンクラス! 谷口の発表で(多分)出てきます。
+  def to_b
+    if self == 'false'
+      false
+    else
+      true
+    end
+  end
+end
+
+module TypedCsv
+  CONVERTER_TO_JSON_TYPE_MAP = {
+    'string' => :to_s,
+    'number' => :to_f,
+    'integer' => :to_i,
+    'boolean' => :to_b
+  }
+
+  module_function
+
+  def type_of_col(col_name, json_schema)
+    begin
+      return json_schema[:items][:properties][col_name.to_sym][:type]
+    rescue NoMethodError
+      'string'
+    end
+  end
+
+  def convert_csv_values(csv_str, json_schema)
+    csv = CSV.parse(csv_str, col_sep: ',')
+
+    headers = csv.shift
+    csv.map do |row|
+      row.each_with_index.each_with_object({}) do |(col, i), row_obj|
+        col_name = headers[i]
+        type = type_of_col(col_name, json_schema)
+        converter = CONVERTER_TO_JSON_TYPE_MAP[type]
+
+        typed_col = col.send converter  # 動的なメソッド呼び出し。メタプログラミングで詳しく扱います。
+        row_obj[col_name.to_sym] = typed_col
+      end
+    end
+  end
+end
+```
+
+テストが無事に通ります。
+
+```bash
+$ rspec spec/lib/parser_10_spec.rb
+..
+
+Finished in 0.00144 seconds (files took 0.08905 seconds to load)
+2 examples, 0 failures
+```
+
+
 # 宿題
+
+1. `src-nakatani/typed-csv/lib/parser_10.rb` を理解してください。
+
+2. CSVから空の値を渡された際の対応を追加してください。
+
+
 
 null許容とそのテストコード
