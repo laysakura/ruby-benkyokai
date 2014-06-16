@@ -189,7 +189,7 @@ $ gem install rspec json-schema pry-debugger
 
 この発表では、RSpecの以下の機能について触れます。
 
-- `describe`, `subject`, `it`, `expect`
+- `describe`, `it`, `expect`
 - `context`, `before`, `after`
 - `let`
 - `shared_examples`, `shared_context`
@@ -281,7 +281,7 @@ Finished in 0.00018 seconds (files took 0.08224 seconds to load)
 
 という風にします。
 
-## `describe`, `subject`, `it`, `expect`
+## `describe`, `it`, `expect`
 
 次に、テストコードを追加しましょう。テストファースト()ってやつです。
 
@@ -890,13 +890,161 @@ Finished in 0.00144 seconds (files took 0.08905 seconds to load)
 2 examples, 0 failures
 ```
 
+## テスト補遺1: `shared_context`
+
+今回のテストで、CSVデータの定義は最初の`describe`の直後の`before`ブロックで行いました。
+これでも今回は十分なのですが、`describe`をまたいでも同じような条件=コンテキストを使いたい場合はあります。
+
+そんな時、`shared_context`を使います。`shared_examples`は`it`の中の共通部分をまとめるためのものでしたが、`shared_context`は`before`や`after`の共通部分をまとめるためのものです。
+
+詳しくは[この辺り](https://www.relishapp.com/rspec/rspec-core/docs/example-groups/shared-context)でチェックしてください。
+
+## テスト補遺2: `let`
+
+例に出したテストでは、`before`ブランチで`@in_csv`や`@out_data`などの変数代入をしていました。
+`before`ブロックの中身は`it`の中身だけ走りますので、毎回代入処理が走ってしまいます。
+代入処理なら大したことはないのですが、DBのテーブル作成などを`before`ブロックに入れると顕著にテスト実行スピードが落ちます。
+
+(我々のとあるプロジェクトのテストは1回5分以上掛かってて泣いています)
+
+`before`の中で色々やるよりは`let`を使いましょう!
+`let`はで定義した変数は、初めて利用された時にだけ定義コードが走り、以降はキャッシュされます。
+
+`let`を使ったテストコードを掲載します。
+
+`src-nakatani/typed-csv/spec/lib/parser_11_spec.rb`
+
+```ruby
+require 'parser_10'
+
+describe 'convert_csv_values' do
+  let(:in_csv) { <<'EOS'
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+EOS
+  }
+
+  shared_examples 'should parse CSV with specified type' do
+    it do
+      result = TypedCsv::convert_csv_values(in_csv, json_schema)
+      expect(result).to eq out_data
+    end
+  end
+
+  context 'when type is not defined by JSON Schema' do
+    let(:json_schema) { {} }
+    let(:out_data) {
+      [
+        { id: '1', name: 'Sho Nakatani', weight: '65.2', around_30s: 'true' },
+        { id: '2', name: 'Naoki Yaguchi', weight: '68.7', around_30s: 'false' }
+      ]
+    }
+
+    it_behaves_like 'should parse CSV with specified type'
+  end
+
+  context 'when type is defined by JSON Schema' do
+    let(:json_schema) {
+      {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            id: { type: 'integer' },
+            name: { type: 'string' },
+            weight: { type: 'number' },
+            around_30s: { type: 'boolean' }
+          }
+        }
+      }
+    }
+    let(:out_data) {
+      [
+        { id: 1, name: 'Sho Nakatani', weight: 65.2, around_30s: true },
+        { id: 2, name: 'Naoki Yaguchi', weight: 68.7, around_30s: false }
+      ]
+    }
+
+    it_behaves_like 'should parse CSV with specified type'
+  end
+end
+```
+
 
 # 宿題
 
-1. `src-nakatani/typed-csv/lib/parser_10.rb` を理解してください。
+期限は6/21(土) 23:59。
+フィードバックはpull-reqに対するコメントで行います。
 
-2. CSVから空の値を渡された際の対応を追加してください。
+## 1
 
+`src-nakatani/typed-csv/lib/parser_10.rb` を理解してください。
 
+## 2
 
-null許容とそのテストコード
+本発表で作成した`TypedCsv::convert_csv_values`に、CSVから空の値を渡された際の対応を追加してください。
+ただし、仕様として以下を満たしてください。
+
+- CSVの空の値は基本的に`nil`に対応させる。
+  ```csv
+  id,name
+  ,hello
+  2,
+  ```
+  に対するJSON Schemaが
+  ```ruby
+  {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        name: { type: 'string' },
+      }
+    }
+  }
+  ```
+  のときの出力は
+  ```ruby
+  [
+    { id: nil, name: 'hello' },
+    { id: 2, name: nil }
+  ]
+  ```
+  となる。
+
+- ただし、JSON Schemaで`required`指定されているカラムの値が空であったときは、例外を投げて処理を終了します(ヒント: `raise`)。
+  ```csv
+  id,name
+  ,hello
+  2,
+  ```
+  に対するJSON Schemaが
+  ```ruby
+  {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer' },
+        name: { type: 'string' },
+      },
+      required: ['name']
+    }
+  }
+  ```
+  だったとき、CSVの2行2列目を呼んだ時点で例外が吐かれる。
+
+- 本発表で作成したモジュール・テストをコピーし修正して、pull-req形式で提出。(言うまでもないが)テストケースも追加すること。
+  ```bash
+  $ pwd
+  /Users/nakatani.sho/git/ruby-benkyokai/06
+
+  $ mkdir yourname-homework
+  $ cp -r nakatani-src/typed-nullable-csv yourname-homework/
+  $ git add yourname-homework/*
+
+  $ emacs
+  ...
+  ```
