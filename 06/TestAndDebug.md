@@ -160,6 +160,127 @@ MySQLとSQLiteを操作するクラス、`Mysql`と`Sqlite`をそれぞれ作る
 
 # Rubyでのテストとデバッグ
 
+基本的なデータ型や制御構造、オブジェクト、クラス、モジュールと色々学んできて、調べながらであればだいぶコードを書けるようになってきたかと思います。
+(宿題などで腕試ししてみてください!)
 
+しかし何かが足りない・・・テストが足りない!!!
+
+各種の言語に様々なテストフレームワークがありますね。Perlだったら`Test::More`あたりでしょうか。
+Rubyでは **RSpec** を使うのがベストかと思います。
+
+RSpecには他のテストフレームワークではあまり見られない機能がたくさんあります。
+しかしたくさんあるが故、最初のとっつきづらさがすごく大きいです。
+
+今日の発表で、小さなテストコードからボトムアップに積み上げていって、実用的なテストコードを書けるまで導きます(多分)。
+
+また、デバッガを使ったデバッグの仕方についても簡単に触れます。
+どこかで偉い人が「小さな関数とテストを積み重ねていけばデバッガは要らない」と言っていたような気がしますが、
+僕のような未熟者にはデバッガは大変うれしいものです。
+
+## Gemの準備
+
+発表中に使うので、以下のGemをインストールしておいてください。
+
+```ruby
+$ gem install rspec json-schema pry-debugger
+```
+
+## RSpecの機能
+
+この発表では、RSpecの以下の機能について触れます。
+
+- `describe`, `subject`, `it`
+- `context`, `before`, `after`
+- `let`
+- `shared_examples`, `shared_context`
+
+## シナリオ
+
+CSVデータを [JSON Schema](http://json-schema.org/) に従って型付けするメソッド、`convert_csv_values`を作成します。
+
+```csv
+id,name,weight,around_30s
+1,"Sho Nakatani",65.2,true
+2,"Naoki Yaguchi",68.7,false
+```
+
+というCSVデータに対し、
+
+```json
+{
+  "type": "array'",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": { "type": "integer" },
+      "name": { type: "string" },
+      "weight": { type: "number" },
+      "around_30s": { type: "boolean" }
+    }
+  }
+}
+```
+
+というJSON Schemaが与えられていた場合には、
+
+```ruby
+[
+  { id: 1, name: 'Sho Nakatani', weight: 65.2, around_30s: true },
+  { id: 2, name: 'Naoki Yaguchi', weight: 68.7, around_30s: false }
+]
+```
+
+というRubyのデータ構造を出力します。
+ただし、`id`は`Integer`, `name`は`String`, `weight`は`Float`, `around_30s`は`TrueClass`または`FalseClass`のインスタンスオブジェクトです。
+
+## 最初のテストコード
+
+まずはメソッドとテストをとりあえず追加しましょう。
+
+`src-nakatani/typed-csv/lib/parser_01.rb`
+
+```ruby
+module TypedCsv
+  module_function
+
+  def convert_csv_values
+  end
+end
+```
+
+`src-nakatani/typed-csv/spec/lib/parser_01_spec.rb`
+
+```ruby
+require 'parser'
+
+describe 'convert_csv_values' do
+end
+```
+
+まだ何も実装せず何もテストしていない状態です。
+置き場所としては、
+
+- `lib/` 以下にモジュールを配置
+- `spec/` 以下に、モジュールの配置とパスを合わせて、`*_spec.rb` という名前でテストコードを配置
+
+となっています。これが標準的な配置です。
+
+テストを走らせるには
+
+```bash
+$ pwd
+/Users/nakatani.sho/git/ruby-benkyokai/06/src-nakatani/typed-csv
+
+$ rspec spec/lib/parser_01_spec.rb
+No examples found.
+
+
+Finished in 0.00018 seconds (files took 0.08224 seconds to load)
+0 examples, 0 failures
+```
+
+という風にします。
 
 # 宿題
+
+null許容とそのテストコード
