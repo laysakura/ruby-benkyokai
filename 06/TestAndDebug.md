@@ -4,7 +4,7 @@
 
 Q. 次の(1)-(9)の各メソッド呼び出しのうち、`NoMethodError`になるのはどれ?
 
-```pry
+```ruby
 [1] pry(main)> module M1
 [1] pry(main)*   def f1
 [1] pry(main)*   end
