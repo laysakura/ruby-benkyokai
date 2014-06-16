@@ -8,6 +8,15 @@ class Object
   end
 end
 
+# before
+#
+# class Foo
+#   def bad_method
+#     puts 'hoge'
+#     'hoge'
+#   end
+# end
+
 class Foo
   def good_method
     puts 'hoge'
