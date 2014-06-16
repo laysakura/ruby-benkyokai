@@ -1,5 +1,59 @@
 # 前回の復習
 
+***************************************************
+
+Q. 次の(1)-(9)の各メソッド呼び出しのうち、`NoMethodError`になるのはどれ?
+
+```pry
+[1] pry(main)> module M1
+[1] pry(main)*   def f1
+[1] pry(main)*   end
+[1] pry(main)* end
+=> nil
+[2] pry(main)> M1.f1  # (1)
+
+[3] pry(main)> include M1
+=> Object
+
+[4] pry(main)> M1.f1  # (2)
+[5] pry(main)> f1     # (3)
+
+[6] pry(main)> module M2
+[6] pry(main)*   module_function
+[6] pry(main)*   def f2
+[6] pry(main)*   end
+[6] pry(main)* end
+=> nil
+[7] pry(main)> M2.f2  # (4)
+
+[8] pry(main)> include M2
+=> Object
+
+[9] pry(main)> M2.f2  # (5)
+[10] pry(main)> f2    # (6)
+
+[11] pry(main)> module M3
+[11] pry(main)*   def self.f3
+[11] pry(main)*   end
+[11] pry(main)* end
+=> nil
+[12] pry(main)> M3.f3  # (7)
+
+[13] pry(main)> include M3
+=> Object
+
+[14] pry(main)> M3.f3  # (8)
+[15] pry(main)> f3     # (9)
+```
+
+
+A. (1), (9)
+
+モジュール関数を使っとくのが安心です。
+
+***************************************************
+
+
 # 前回の疑問解消
 
 ## [`include`をした時の正確な動作](https://github.com/laysakura/ruby-benkyokai/issues/11)
@@ -105,5 +159,7 @@ MySQLとSQLiteを操作するクラス、`Mysql`と`Sqlite`をそれぞれ作る
 
 
 # Rubyでのテストとデバッグ
+
+
 
 # 宿題
