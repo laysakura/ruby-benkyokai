@@ -179,11 +179,15 @@ RSpecには他のテストフレームワークではあまり見られない機
 
 ## Gemの準備
 
-発表中に使うので、以下のGemをインストールしておいてください。
+発表中に使うので、各種Gemをインストールしておいてください。
 
 ```bash
-$ gem install rspec json-schema pry-debugger
+$ pwd
+/Users/nakatani.sho/git/ruby-benkyokai/07/src-nakatani/typed-csv
+$ bundle install --path=vender/bundle
 ```
+
+`bundle`は`carton`みたいなものです。`Gemfile`に書かれたモジュールをインストールしてくれ、しかもディレクトリローカルにしかGemを適用させません。
 
 ## RSpecの機能
 
@@ -269,7 +273,7 @@ end
 
 ```bash
 $ pwd
-/Users/nakatani.sho/git/ruby-benkyokai/06/src-nakatani/typed-csv
+/Users/nakatani.sho/git/ruby-benkyokai/07/src-nakatani/typed-csv
 
 $ rspec spec/lib/parser_01_spec.rb
 No examples found.
@@ -502,7 +506,7 @@ end
 ```bash
 $ rspec spec/lib/parser_05_spec.rb
 
-From: /Users/nakatani.sho/git/ruby-benkyokai/06/src-nakatani/typed-csv/lib/parser_05.rb @ line 10 TypedCsv.convert_csv_values:
+From: /Users/nakatani.sho/git/ruby-benkyokai/07/src-nakatani/typed-csv/lib/parser_05.rb @ line 10 TypedCsv.convert_csv_values:
 
      7: def convert_csv_values(csv_str)
      8:   csv = CSV.parse(csv_str, col_sep: ',')
@@ -1060,7 +1064,7 @@ end
 - 本発表で作成したモジュール・テストをコピーし修正して、pull-req形式で提出。(言うまでもないが)テストケースも追加すること。
   ```bash
   $ pwd
-  /Users/nakatani.sho/git/ruby-benkyokai/06
+  /Users/nakatani.sho/git/ruby-benkyokai/07
 
   $ mkdir yourname-homework
   $ cp -r nakatani-src/typed-nullable-csv yourname-homework/
