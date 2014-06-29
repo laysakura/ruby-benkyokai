@@ -1,5 +1,4 @@
 require 'csv'
-require 'pry'
 
 class String  # オープンクラス! 谷口の発表で(多分)出てきます。
   def to_b
