@@ -20,7 +20,7 @@ class MysqlBenchmarkReport
     def execute_benchmark (stmt)
         label = <<EOS
 | user       | system     | total      | real         |
-| --------- :| --------- :| --------- :| ----------- :|
+| ----------:| ----------:| ----------:| ------------:|
 EOS
         format = "| %4.8u | %4.8y | %4.8t | %4.8r |\n"
 
