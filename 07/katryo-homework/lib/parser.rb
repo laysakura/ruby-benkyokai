@@ -31,8 +31,7 @@ module TypedCsv
 
   def required_cols(json_schema)
     begin
-      required_cols = json_schema[:items][:required] || []
-      return required_cols
+      return json_schema[:items][:required] || []
     rescue NoMethodError
       return []
     end
