@@ -41,6 +41,7 @@ EOS
             value_max_length = 0
             row.each {|k, v| row[k] = v.to_s; value_max_length = v.to_s.length if value_max_length < v.to_s.length} # => 出力揃えるため、一番長い文字列の長さを取る。また数字のままだと不便だったのでto_sしている
 
+            # 出力　短いものはスペースで埋めて揃える
             puts "| #{index[0] + ' ' * (column_name_max_length - index[0].length)} | #{index[1] + ' ' * (value_max_length - index[1].length)} |"
             puts "| #{'-' * column_name_max_length}:|:#{'-' * value_max_length} |"
 
