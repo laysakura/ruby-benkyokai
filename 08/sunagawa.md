@@ -195,7 +195,7 @@ rb_io_s_open(int argc, VALUE *argv, VALUE klass)
 
 ※わからなかったこと: IOオブジェクトを返しそうなのにFileオブジェクトが返ってくる。
 
-# Topic2: MySQLの接続
+# Topic2 MySQLの接続
 
 perlでは、
 
