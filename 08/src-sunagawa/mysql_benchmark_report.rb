@@ -32,24 +32,32 @@ EOS
     end
 
     def print_explain (explain)
-        column_names = %w(id select_type table type possible_keys key key_len ref rows Extra)
-        index = ['column_name', 'value']
+        columns = %w(id --- select_type table type possible_keys key key_len ref rows Extra)
 
-        puts "### EXPLAIN"
+        column_name_max_length = 13
+        lines = columns.map.with_index do |column, index|
+            space = index == 1 ? '-' : ' '
+            '|' + column +  space * (column_name_max_length - column.length)
+        end
+            
         explain.each do |row|
-            column_name_max_length = 13
-            value_max_length = 0
+            value_max_length = 4
             row.each {|k, v| row[k] = v.to_s; value_max_length = v.to_s.length if value_max_length < v.to_s.length} # => 出力揃えるため、一番長い文字列の長さを取る。また数字のままだと不便だったのでto_sしている
 
-            # 出力　短いものはスペースで埋めて揃える
-            puts "| #{index[0] + ' ' * (column_name_max_length - index[0].length)} | #{index[1] + ' ' * (value_max_length - index[1].length)} |"
-            puts "| #{'-' * column_name_max_length}:|:#{'-' * value_max_length} |"
-
-            column_names.each do |col|
-                puts "| #{col + ' ' * (column_name_max_length - col.length)} | #{ row[col] + ' ' * (value_max_length - row[col].length)} |"
+            # 出力の整形　標準出力でも見やすいように、短いものはスペースで埋めて揃える
+            lines.map!.with_index do |line, index|
+                space = ' '
+                value = row[columns[index]].to_s
+                if index == 1
+                    space = '-'
+                    line + '|:' +  value + space * (value_max_length - value.to_s.length - 1)
+                else
+                    line + '|' +  value + space * (value_max_length - value.to_s.length)
+                end
             end
-            puts ""
         end
+        puts "### EXPLAIN"
+        lines.each { |line| puts line + '|' }
     end
 
     def execute_explain (stmt)
