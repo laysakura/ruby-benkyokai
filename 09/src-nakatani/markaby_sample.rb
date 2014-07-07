@@ -1,7 +1,9 @@
+require 'pry'
 require 'markaby'
 
 mab = Markaby::Builder.new
 mab.html do
+binding.pry
   head { title "Boats.com" }
   body do
     h1 "Boats.com has great deals"
